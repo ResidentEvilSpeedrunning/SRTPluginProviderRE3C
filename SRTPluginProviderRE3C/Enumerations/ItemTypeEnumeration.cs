@@ -5,5 +5,7 @@
 		KeyItem = 0,
 		Weapon = 1,
 		Item = 13,
+		Infinite = 15,
+		PercentItem = 22
 	}
 }

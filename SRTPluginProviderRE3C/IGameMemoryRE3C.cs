@@ -15,7 +15,7 @@ namespace SRTPluginProviderRE3C
         byte PlayerStatus { get; }
         byte EquippedItemId { get; }
         byte AvailableSlots { get; }
-        byte CurrentPlayer { get; }
+        byte PlayerCharacter { get; }
         GameItemEntry[] PlayerInventory { get; }
         EnemyHP Nemesis { get; }
         TimeSpan IGTTimeSpan { get; }

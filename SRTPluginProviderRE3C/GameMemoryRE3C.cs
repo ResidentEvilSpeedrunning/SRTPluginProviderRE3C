@@ -26,8 +26,8 @@ namespace SRTPluginProviderRE3C
         internal byte _equippedItemId;
         public byte AvailableSlots { get => _availableSlots; }
         internal byte _availableSlots;
-        public byte CurrentPlayer { get => _currentPlayer; }
-        internal byte _currentPlayer;
+        public byte PlayerCharacter { get => _playerCharacter; }
+        internal byte _playerCharacter;
         public GameItemEntry[] PlayerInventory { get => _playerInventory; }
         internal GameItemEntry[] _playerInventory;
         public EnemyHP Nemesis { get => _nemesis; }

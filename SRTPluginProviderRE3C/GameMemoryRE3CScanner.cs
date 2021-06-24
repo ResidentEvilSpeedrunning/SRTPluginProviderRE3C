@@ -80,7 +80,7 @@ namespace SRTPluginProviderRE3C
 
         internal unsafe IGameMemoryRE3C Refresh()
         {
-            fixed (byte* p = &gameMemoryValues._currentPlayer)
+            fixed (byte* p = &gameMemoryValues._playerCharacter)
                 memoryAccess.TryGetByteAt(AddressPlayerType, p);
 
             fixed (uint* p = &gameMemoryValues._gameState)

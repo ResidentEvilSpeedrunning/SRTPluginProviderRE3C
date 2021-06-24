@@ -5,9 +5,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Platforms>x86</Platforms>
-    <Authors>Travis J. Gutjahr</Authors>
-    <Company>Travis J. Gutjahr</Company>
-    <Copyright>Copyright © 2021 Travis J. Gutjahr</Copyright>
+    <Authors>VideoGameRoulette</Authors>
+    <Company>VideoGameRoulette</Company>
+    <Copyright>Copyright © 2021 VideoGameRoulette</Copyright>
     <Product>Resident Evil 3 Classic (1998) Memory Provider Plugin</Product>
     <Description>A provider plugin for the SRT Host to provide memory values to other plugins.</Description>
     <Version>1.0.0.0</Version>
