@@ -1,13 +1,18 @@
 ﻿using SRTPluginProviderRE3C.Structs;
 using SRTPluginProviderRE3C.Structs.GameStructs;
 using System;
+using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 
 namespace SRTPluginProviderRE3C
 {
     public struct GameMemoryRE3C : IGameMemoryRE3C
     {
         private const string IGT_TIMESPAN_STRING_FORMAT = @"hh\:mm\:ss";
+        public string GameName => "RE3";
+        public string VersionInfo => FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+
         public uint GameState { get => _gameState; }
         internal uint _gameState;
         public uint Save { get => _save; }

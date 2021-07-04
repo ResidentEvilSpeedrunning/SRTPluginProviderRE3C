@@ -6,6 +6,8 @@ namespace SRTPluginProviderRE3C
 {
     public interface IGameMemoryRE3C
     {
+        string GameName { get; }
+        string VersionInfo { get; }
         uint GameState { get; }
         uint Save { get; }
         uint Total { get; }

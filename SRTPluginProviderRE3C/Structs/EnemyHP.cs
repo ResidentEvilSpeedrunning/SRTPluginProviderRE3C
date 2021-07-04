@@ -38,8 +38,8 @@ namespace SRTPluginProviderRE3C.Structs
         internal ushort _maximumHP;
         public ushort CurrentHP { get => _currentHP; }
         internal ushort _currentHP;
-        public bool IsDead => CurrentHP > MaximumHP || CurrentHP == 0xFFFF;
+        public bool IsDead => CurrentHP > MaximumHP || CurrentHP >= 20000 || MaximumHP >= 20000;
         public bool IsAlive => !IsDead && CurrentHP <= MaximumHP && CurrentHP != 0;
-        public float Percentage => IsAlive ? (float)(CurrentHP / MaximumHP) : 0f;
+        public float Percentage => IsAlive ? (float)CurrentHP / (float)MaximumHP : 0f;
     }
 }

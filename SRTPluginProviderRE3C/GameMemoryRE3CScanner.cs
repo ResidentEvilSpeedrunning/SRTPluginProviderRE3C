@@ -81,19 +81,19 @@ namespace SRTPluginProviderRE3C
         internal unsafe IGameMemoryRE3C Refresh()
         {
             fixed (byte* p = &gameMemoryValues._playerCharacter)
-                memoryAccess.TryGetByteAt(AddressPlayerType, p);
+                memoryAccess.TryGetByteAt((IntPtr)AddressPlayerType, p);
 
             fixed (uint* p = &gameMemoryValues._gameState)
-                memoryAccess.TryGetUIntAt(AddressGameState, p);
+                memoryAccess.TryGetUIntAt((IntPtr)AddressGameState, p);
 
             fixed (uint* p = &gameMemoryValues._save)
-                memoryAccess.TryGetUIntAt(AddressSave, p);
+                memoryAccess.TryGetUIntAt((IntPtr)AddressSave, p);
 
             fixed (uint* p = &gameMemoryValues._total)
-                memoryAccess.TryGetUIntAt(AddressTotal, p);
+                memoryAccess.TryGetUIntAt((IntPtr)AddressTotal, p);
 
             fixed (uint* p = &gameMemoryValues._now)
-                memoryAccess.TryGetUIntAt(AddressNow, p);
+                memoryAccess.TryGetUIntAt((IntPtr)AddressNow, p);
 
             //Player HP
             if (SafeReadByteArray((IntPtr)AddressPlayer, sizeof(GamePlayerHP), out byte[] PlayerBytes))
@@ -105,10 +105,10 @@ namespace SRTPluginProviderRE3C
             }
 
             fixed (byte* p = &gameMemoryValues._equippedItemId)
-                memoryAccess.TryGetByteAt(AddressEquippedItemId, p);
+                memoryAccess.TryGetByteAt((IntPtr)AddressEquippedItemId, p);
 
             fixed (byte* p = &gameMemoryValues._availableSlots)
-                memoryAccess.TryGetByteAt(AddressInventorySlots, p);
+                memoryAccess.TryGetByteAt((IntPtr)AddressInventorySlots, p);
 
             // Inventory
             if (gameMemoryValues._playerInventory == null)
