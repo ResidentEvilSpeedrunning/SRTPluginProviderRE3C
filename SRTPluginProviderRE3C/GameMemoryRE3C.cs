@@ -21,12 +21,10 @@ namespace SRTPluginProviderRE3C
         internal uint _total;
         public uint Now { get => _now; }
         internal uint _now;
-        public ushort PlayerCurrentHealth { get => _playerCurrentHealth; }
-        internal ushort _playerCurrentHealth;
-        public ushort PlayerMaxHealth { get => _playerMaxHealth; }
-        internal ushort _playerMaxHealth;
-        public byte PlayerStatus { get => _playerStatus; }
-        internal byte _playerStatus;
+        public GamePlayer Player { get => _player; }
+        internal GamePlayer _player;
+        public string PlayerName { get => _playerName; }
+        internal string _playerName;
         public byte EquippedItemId { get => _equippedItemId; }
         internal byte _equippedItemId;
         public byte AvailableSlots { get => _availableSlots; }

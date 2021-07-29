@@ -12,9 +12,8 @@ namespace SRTPluginProviderRE3C
         uint Save { get; }
         uint Total { get; }
         uint Now { get; }
-        ushort PlayerCurrentHealth { get; }
-        ushort PlayerMaxHealth { get; }
-        byte PlayerStatus { get; }
+        GamePlayer Player { get; }
+        string PlayerName { get; }
         byte EquippedItemId { get; }
         byte AvailableSlots { get; }
         byte PlayerCharacter { get; }

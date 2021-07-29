@@ -3,10 +3,11 @@ using System;
 using System.Diagnostics;
 using SRTPluginProviderRE3C.Structs;
 using SRTPluginProviderRE3C.Structs.GameStructs;
+using System.Collections.Generic;
 
 namespace SRTPluginProviderRE3C
 {
-    public unsafe class GameMemoryRE3CScanner : IDisposable
+    public class GameMemoryRE3CScanner : IDisposable
     {
         //private static readonly int MAX_ENTITIES = 32;
         private static readonly int MAX_ITEMS = 10;
@@ -42,7 +43,7 @@ namespace SRTPluginProviderRE3C
                 Initialize(process);
         }
 
-        internal unsafe void Initialize(Process process)
+        internal void Initialize(Process process)
         {
             if (process == null)
                 return; // Do not continue if this is null.
@@ -82,7 +83,23 @@ namespace SRTPluginProviderRE3C
             return false;
         }
 
-        internal unsafe IGameMemoryRE3C Refresh()
+        public Dictionary<byte, string> PlayerType = new Dictionary<byte, string>
+        {
+            { 0, "Jill: " },
+            { 1, "Jill: " },
+            { 2, "Jill: " },
+            { 3, "Jill: " },
+            { 4, "Jill: " },
+            { 5, "Jill: " },
+            { 6, "Jill: " },
+            { 7, "Jill: " },
+            { 8, "Carlos: " },
+            { 10, "Nicholai: " },
+            { 15, "Tofu: " },
+            { 255, "Jill: " }
+        };
+
+        internal IGameMemoryRE3C Refresh()
         {
             gameMemoryValues._playerCharacter = memoryAccess.GetByteAt(IntPtr.Add(BaseAddress, AddressPlayerType));
 
@@ -95,10 +112,9 @@ namespace SRTPluginProviderRE3C
             gameMemoryValues._now = memoryAccess.GetUIntAt(IntPtr.Add(BaseAddress, AddressNow));
 
             //Player HP
-            GamePlayerHP gphp = memoryAccess.GetAt<GamePlayerHP>(IntPtr.Add(BaseAddress, AddressPlayer));
-            gameMemoryValues._playerMaxHealth = gphp.Max;
-            gameMemoryValues._playerCurrentHealth = gphp.Current;
-            gameMemoryValues._playerStatus = gphp.Status;
+            gameMemoryValues._player = memoryAccess.GetAt<GamePlayer>(IntPtr.Add(BaseAddress, AddressPlayer));
+
+            gameMemoryValues._playerName = PlayerType.ContainsKey(gameMemoryValues.PlayerCharacter) ? PlayerType[gameMemoryValues.PlayerCharacter] : "Player: ";
 
             gameMemoryValues._equippedItemId = memoryAccess.GetByteAt(IntPtr.Add(BaseAddress, AddressEquippedItemId));
 
