@@ -1,13 +1,18 @@
 ﻿using SRTPluginProviderRE3C.Structs;
 using SRTPluginProviderRE3C.Structs.GameStructs;
 using System;
+using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 
 namespace SRTPluginProviderRE3C
 {
     public struct GameMemoryRE3C : IGameMemoryRE3C
     {
         private const string IGT_TIMESPAN_STRING_FORMAT = @"hh\:mm\:ss";
+        public string GameName => "RE3";
+        public string VersionInfo => FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+
         public uint GameState { get => _gameState; }
         internal uint _gameState;
         public uint Save { get => _save; }
@@ -16,12 +21,10 @@ namespace SRTPluginProviderRE3C
         internal uint _total;
         public uint Now { get => _now; }
         internal uint _now;
-        public ushort PlayerCurrentHealth { get => _playerCurrentHealth; }
-        internal ushort _playerCurrentHealth;
-        public ushort PlayerMaxHealth { get => _playerMaxHealth; }
-        internal ushort _playerMaxHealth;
-        public byte PlayerStatus { get => _playerStatus; }
-        internal byte _playerStatus;
+        public GamePlayer Player { get => _player; }
+        internal GamePlayer _player;
+        public string PlayerName { get => _playerName; }
+        internal string _playerName;
         public byte EquippedItemId { get => _equippedItemId; }
         internal byte _equippedItemId;
         public byte AvailableSlots { get => _availableSlots; }

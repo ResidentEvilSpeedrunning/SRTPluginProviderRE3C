@@ -3,10 +3,11 @@ using System;
 using System.Diagnostics;
 using SRTPluginProviderRE3C.Structs;
 using SRTPluginProviderRE3C.Structs.GameStructs;
+using System.Collections.Generic;
 
 namespace SRTPluginProviderRE3C
 {
-    public unsafe class GameMemoryRE3CScanner : IDisposable
+    public class GameMemoryRE3CScanner : IDisposable
     {
         //private static readonly int MAX_ENTITIES = 32;
         private static readonly int MAX_ITEMS = 10;
@@ -21,19 +22,19 @@ namespace SRTPluginProviderRE3C
 
         public GameItemEntry EmptySlot = new GameItemEntry();
 
-        // Addresses
-        private int* AddressPlayerType = (int*)0;
-        private int* AddressGameState = (int*)0;
-        private int* AddressSave = (int*)0;
-        private int* AddressTotal = (int*)0;
-        private int* AddressNow = (int*)0;
+        private IntPtr BaseAddress { get; set; }
 
-        private int* AddressPlayer = (int*)0;
-        private int* AddressNemesisHP = (int*)0;
-        private int* AddressPlayerMaxHP = (int*)0;
-        private int* AddressEquippedItemId = (int*)0;
-        private int* AddressInventorySlots = (int*)0;
-        private int* AddressInventory = (int*)0;
+        // Addresses
+        private int AddressPlayerType;
+        private int AddressGameState;
+        private int AddressSave;
+        private int AddressTotal;
+        private int AddressNow;
+        private int AddressPlayer;
+        private int AddressNemesisHP;
+        private int AddressEquippedItemId;
+        private int AddressInventorySlots;
+        private int AddressInventory;
 
         internal GameMemoryRE3CScanner(Process process = null)
         {
@@ -42,7 +43,7 @@ namespace SRTPluginProviderRE3C
                 Initialize(process);
         }
 
-        internal unsafe void Initialize(Process process)
+        internal void Initialize(Process process)
         {
             if (process == null)
                 return; // Do not continue if this is null.
@@ -52,6 +53,10 @@ namespace SRTPluginProviderRE3C
 
             int pid = GetProcessId(process).Value;
             memoryAccess = new ProcessMemoryHandler(pid);
+            if (ProcessRunning)
+            {
+                BaseAddress = NativeWrappers.GetProcessBaseAddress(pid, PInvoke.ListModules.LIST_MODULES_32BIT); // Bypass .NET's managed solution for getting this and attempt to get this info ourselves via PInvoke since some users are getting 299 PARTIAL COPY when they seemingly shouldn't.
+            }
         }
 
         private bool SelectAddresses(GameVersion version)
@@ -60,16 +65,16 @@ namespace SRTPluginProviderRE3C
             {
                 case GameVersion.Rebirth:
                     {
-                        AddressPlayerType = (int*)0x7043CF;
-                        AddressGameState = (int*)0xA61CA0;
-                        AddressSave = (int*)0xA67378;
-                        AddressTotal = (int*)0xA61D64;
-                        AddressNow = (int*)0xA449D4;
-                        AddressPlayer = (int*)0xA620E0;
-                        AddressNemesisHP = (int*)0x655A58;
-                        AddressEquippedItemId = (int*)0xA676AD;
-                        AddressInventorySlots = (int*)0xA676AE;
-                        AddressInventory = (int*)0xA67584;
+                        AddressPlayerType = 0x3043CF;
+                        AddressGameState = 0x661CA0;
+                        AddressSave = 0x667378;
+                        AddressTotal = 0x661D64;
+                        AddressNow = 0x6449D4;
+                        AddressPlayer = 0x6620E0;
+                        AddressNemesisHP = 0x255A58;
+                        AddressEquippedItemId = 0x6676AD;
+                        AddressInventorySlots = 0x6676AE;
+                        AddressInventory = 0x667584;
                         return true;
                     }
             }
@@ -78,37 +83,42 @@ namespace SRTPluginProviderRE3C
             return false;
         }
 
-        internal unsafe IGameMemoryRE3C Refresh()
+        public Dictionary<byte, string> PlayerType = new Dictionary<byte, string>
         {
-            fixed (byte* p = &gameMemoryValues._playerCharacter)
-                memoryAccess.TryGetByteAt(AddressPlayerType, p);
+            { 0, "Jill: " },
+            { 1, "Jill: " },
+            { 2, "Jill: " },
+            { 3, "Jill: " },
+            { 4, "Jill: " },
+            { 5, "Jill: " },
+            { 6, "Jill: " },
+            { 7, "Jill: " },
+            { 8, "Carlos: " },
+            { 10, "Nicholai: " },
+            { 15, "Tofu: " },
+            { 255, "Jill: " }
+        };
 
-            fixed (uint* p = &gameMemoryValues._gameState)
-                memoryAccess.TryGetUIntAt(AddressGameState, p);
+        internal IGameMemoryRE3C Refresh()
+        {
+            gameMemoryValues._playerCharacter = memoryAccess.GetByteAt(IntPtr.Add(BaseAddress, AddressPlayerType));
 
-            fixed (uint* p = &gameMemoryValues._save)
-                memoryAccess.TryGetUIntAt(AddressSave, p);
+            gameMemoryValues._gameState = memoryAccess.GetUIntAt(IntPtr.Add(BaseAddress, AddressGameState));
 
-            fixed (uint* p = &gameMemoryValues._total)
-                memoryAccess.TryGetUIntAt(AddressTotal, p);
+            gameMemoryValues._save = memoryAccess.GetUIntAt(IntPtr.Add(BaseAddress, AddressSave));
 
-            fixed (uint* p = &gameMemoryValues._now)
-                memoryAccess.TryGetUIntAt(AddressNow, p);
+            gameMemoryValues._total = memoryAccess.GetUIntAt(IntPtr.Add(BaseAddress, AddressTotal));
+
+            gameMemoryValues._now = memoryAccess.GetUIntAt(IntPtr.Add(BaseAddress, AddressNow));
 
             //Player HP
-            if (SafeReadByteArray((IntPtr)AddressPlayer, sizeof(GamePlayerHP), out byte[] PlayerBytes))
-            {
-                var playerStats = GamePlayerHP.AsStruct(PlayerBytes);
-                gameMemoryValues._playerMaxHealth = playerStats.Max;
-                gameMemoryValues._playerCurrentHealth = playerStats.Current;
-                gameMemoryValues._playerStatus = playerStats.Status;
-            }
+            gameMemoryValues._player = memoryAccess.GetAt<GamePlayer>(IntPtr.Add(BaseAddress, AddressPlayer));
 
-            fixed (byte* p = &gameMemoryValues._equippedItemId)
-                memoryAccess.TryGetByteAt(AddressEquippedItemId, p);
+            gameMemoryValues._playerName = PlayerType.ContainsKey(gameMemoryValues.PlayerCharacter) ? PlayerType[gameMemoryValues.PlayerCharacter] : "Player: ";
 
-            fixed (byte* p = &gameMemoryValues._availableSlots)
-                memoryAccess.TryGetByteAt(AddressInventorySlots, p);
+            gameMemoryValues._equippedItemId = memoryAccess.GetByteAt(IntPtr.Add(BaseAddress, AddressEquippedItemId));
+
+            gameMemoryValues._availableSlots = memoryAccess.GetByteAt(IntPtr.Add(BaseAddress, AddressInventorySlots));
 
             // Inventory
             if (gameMemoryValues._playerInventory == null)
@@ -119,18 +129,13 @@ namespace SRTPluginProviderRE3C
                 if (i > gameMemoryValues.AvailableSlots)
                     gameMemoryValues._playerInventory[i] = EmptySlot;
 
-                if (SafeReadByteArray(IntPtr.Add((IntPtr)AddressInventory, (i * 0x4)), sizeof(GameItemEntry), out byte[] ItemBytes))
-                    gameMemoryValues._playerInventory[i] = GameItemEntry.AsStruct(ItemBytes);
+                gameMemoryValues._playerInventory[i] = memoryAccess.GetAt<GameItemEntry>(IntPtr.Add(BaseAddress + AddressInventory, (i * 0x4)));
             }
-                
 
             //Enemy HP
-            if (SafeReadByteArray((IntPtr)AddressNemesisHP, sizeof(GameEnemyHP), out byte[] EnemyBytes))
-            {
-                var enemyHP = GameEnemyHP.AsStruct(EnemyBytes);
-                gameMemoryValues._nemesis._maximumHP = enemyHP.Max;
-                gameMemoryValues._nemesis._currentHP = enemyHP.Current;
-            }
+            GameEnemyHP gehp = memoryAccess.GetAt<GameEnemyHP>(IntPtr.Add(BaseAddress, AddressNemesisHP));
+            gameMemoryValues._nemesis._maximumHP = gehp.Max;
+            gameMemoryValues._nemesis._currentHP = gehp.Current;
 
             HasScanned = true;
             return gameMemoryValues;
@@ -140,15 +145,6 @@ namespace SRTPluginProviderRE3C
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
-
-        private unsafe bool SafeReadByteArray(IntPtr address, int size, out byte[] readBytes)
-        {
-            readBytes = new byte[size];
-            fixed (byte* p = readBytes)
-            {
-                return memoryAccess.TryGetByteArrayAt(address, size, p);
-            }
-        }
 
         protected virtual void Dispose(bool disposing)
         {
